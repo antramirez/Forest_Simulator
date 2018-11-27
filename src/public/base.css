@@ -2,6 +2,23 @@
   display: none;
 }
 
+.overlay {
+  position: fixed;
+  right: 0;
+  top: 0;
+  padding: 15px;
+  background-color: red;
+  color:white;
+  font-family: sans-serif;
+  z-index: 1000;
+  display:none;
+}
+
 #sim button {
   margin-top: 10px;
+}
+
+.selected {
+  width: 175px;
+  background-color: blue;
 }
