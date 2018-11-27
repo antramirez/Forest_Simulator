@@ -79,9 +79,14 @@ function generateDOMelements() {
 
   // create button and add event listener to regenerate non-selected rows
   const btn = document.createElement('button');
-  btn.innerText = 'generate';
+  btn.textContent = 'generate';
   btn.addEventListener('click', generateForest);
   sim.appendChild(btn);
+
+  // create a div element within the push tray div to display Simpson's Index
+  const pushtray = document.querySelector('#pushtray');
+  const pushtrayDiv = document.createElement('div');
+  pushtray.append(pushtrayDiv);
 }
 
 function generateForest(input) {
@@ -106,7 +111,7 @@ function userForest(input) {
   const rows = sim.children[1].children;
   // create array that will contain every emoji in the forest,
   // to be used to calculate Simpson's Index
-  let allEmojis = [];
+  const allEmojis = [];
   for (let i = 0; i < input.length; i++) {
     // get current row and set inner HTML of row div to the current line
     const cur = [...input[i]];
@@ -122,13 +127,14 @@ function userForest(input) {
     allEmojis.push(...cur);
   }
 
-
+  // check Simpson's Index
+  updateSimpsIndex(allEmojis);
 }
 
 function randomForest() {
   // create an array that will store all the emoji in the forest,
   // to be used to find Simpson's Index
-  let allEmojis = [];
+  const allEmojis = [];
   // get second child element (forest container) of sim container
   const rows = document.querySelector('#sim').children[1].children;
   // loop through the rows
@@ -144,7 +150,7 @@ function randomForest() {
           rows[i].innerHTML += emojis[index];
         }
         else {
-          rows[i].innerHTML += '&emsp;'
+          rows[i].innerHTML += '&emsp;';
         }
         // add current emoji to array
         allEmojis.push(emojis[index]);
@@ -158,10 +164,39 @@ function randomForest() {
     }
   }
 
+  // check Simpson's Index
+  updateSimpsIndex(allEmojis);
 }
 
 function selectRow(evt) {
   // add 'selected'class, which highlights row, and
   // is used when determining which rows to regenerate
-  evt.target.classList.add('selected');
+  if (evt.target.classList.contains('selected')) {
+    evt.target.classList.remove('selected');
+  }
+  else {
+    evt.target.classList.add('selected');
+  }
+}
+
+function updateSimpsIndex(emoji) {
+  // update Simpson's Index in first child node of sim div
+  const simps = document.querySelector('#sim').children[0];
+  if (emoji) {
+    simpsInd = simpsonsIndex(emoji).toFixed(2);
+  }
+  simps.innerHTML = "the current Simpson's Index is: <strong>" + simpsInd + '</strong>';
+
+  // check if Simpon's Index is below 0.8
+  checkSimpsIndex(simpsonsIndex(emoji).toFixed(2));
+}
+
+function checkSimpsIndex(index) {
+  // add Simpson's Index to proper div and display it
+  const overlay = document.querySelector('.overlay');
+  const pushtrayDiv = overlay.firstElementChild;
+  if (index < .98) {
+    pushtrayDiv.textContent = "WARNING: Simpon's Index dropped to " + index;
+    overlay.style.display = 'block';
+  }
 }
