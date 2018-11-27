@@ -18,6 +18,8 @@ let numEmojis = 8;
 // Simspon's index
 let simpsInd = 1.0;
 
+let alreadyGenerated = false;
+
 function selectRow(evt) {
   // add 'selected'class, which highlights row, and
   // is used when determining which rows to regenerate
@@ -130,6 +132,28 @@ function generateForest(input) {
   }
 }
 
+function restart() {
+  // display intro
+  const intro = document.querySelector('#intro');
+  intro.classList.remove('hidden');
+
+  // hide sim
+  const sim = document.querySelector('#sim');
+  sim.classList.add('hidden');
+
+  // unselect selected rows
+  const forest = sim.children[1].children;
+  for (let i = 0; i < forest.length; i++) {
+    if (forest[i].classList.contains('selected')) {
+      forest[i].classList.remove('selected');
+    }
+  }
+
+  // hide push tray
+  const overlay = document.querySelector('.overlay');
+  overlay.style.display = 'none';
+}
+
 function generateDOMelements() {
   // get reference to sim container
   const sim = document.querySelector('#sim');
@@ -156,10 +180,18 @@ function generateDOMelements() {
   btn.addEventListener('click', generateForest);
   sim.appendChild(btn);
 
+  // create restart button and add event listener to restart simulation
+  const restartBtn = document.createElement('button');
+  restartBtn.textContent = 'restart';
+  restartBtn.addEventListener('click', restart);
+  sim.appendChild(restartBtn);
+
   // create a div element within the push tray div to display Simpson's Index
   const pushtray = document.querySelector('#pushtray');
   const pushtrayDiv = document.createElement('div');
   pushtray.append(pushtrayDiv);
+
+  alreadyGenerated = true;
 }
 
 function generate(evt) {
@@ -181,7 +213,9 @@ function generate(evt) {
   }
 
   // generate Simpson's Index div, the forest container, and the generate button
-  generateDOMelements();
+  if (!alreadyGenerated) {
+    generateDOMelements();
+  }
 
   // generate forest, which depends on whether or not user typed input,
   // using array of every line of the input
