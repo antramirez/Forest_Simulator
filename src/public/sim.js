@@ -18,91 +18,37 @@ let numEmojis = 8;
 // Simspon's index
 let simpsInd = 1.0;
 
-// run main function once DOM content has loaded
-document.addEventListener('DOMContentLoaded', main);
-
-function main() {
-  // add event listener to the generate button,
-  // which will hide intro and show sim div
-  const btn = document.querySelector('button');
-  btn.addEventListener('click', generate);
-}
-
-function generate(evt) {
-  // hide intro
-  const intro = document.querySelector('#intro');
-  intro.classList.add('hidden');
-  // show sim div
-  const sim = document.querySelector('#sim');
-  sim.classList.remove('hidden');
-
-  // determine number of rows if there is any user input
-  const inputForestVal = document.querySelector('#inputForest').value;
-  const inputArr = inputForestVal.split('\n');
-  if (inputForestVal) {
-    // set number of rows and emoji per row if there is any input,
-    // otherwise, the default is 8 for each
-    numRows = inputArr.length;
-    numEmojis = [...inputArr[0]].length;
+function selectRow(evt) {
+  // add 'selected'class, which highlights row, and
+  // is used when determining which rows to regenerate
+  if (evt.target.classList.contains('selected')) {
+    evt.target.classList.remove('selected');
   }
-
-  // generate Simpson's Index div, the forest container, and the generate button
-  generateDOMelements();
-
-  // generate forest, which depends on whether or not user typed input,
-  // using array of every line of the input
-  generateForest(inputArr);
-
-  // do not reload page nor send data via form when button is clicked
-  evt.preventDefault();
-}
-
-function generateDOMelements() {
-  // get reference to sim container
-  const sim = document.querySelector('#sim');
-
-  // create div for Simpon's Index and append to sim div
-  const simpsP = document.createElement('p');
-  sim.appendChild(simpsP);
-
-  // create container for forest, initially empty, and append to sim div
-  const forestContainer = document.createElement('div');
-  for (let i = 0; i < numRows; i++) {
-    const row = document.createElement('div');
-    row.innerHTML = '';
-
-    // on click handler to save/pin rows
-    row.addEventListener('click', selectRow);
-    forestContainer.append(row);
-  }
-  sim.appendChild(forestContainer);
-
-  // create button and add event listener to regenerate non-selected rows
-  const btn = document.createElement('button');
-  btn.textContent = 'generate';
-  btn.addEventListener('click', generateForest);
-  sim.appendChild(btn);
-
-  // create a div element within the push tray div to display Simpson's Index
-  const pushtray = document.querySelector('#pushtray');
-  const pushtrayDiv = document.createElement('div');
-  pushtray.append(pushtrayDiv);
-}
-
-function generateForest(input) {
-  // if there is input, call function with input as parameter to handle user forest
-  // it is an array of rows
-  const inputForest = document.querySelector('#inputForest');
-  if (inputForest.value) {
-    userForest(input);
-    // clear the text area after the user generates the forest from their input
-    // so that if the user clicks generate again, the forest will be randomized
-    inputForest.value = '';
-  }
-  // if no input, randomize the whole forest
   else {
-    randomForest();
+    evt.target.classList.add('selected');
   }
+}
+
+function checkSimpsIndex(index) {
+  // add Simpson's Index to proper div and display it
+  const overlay = document.querySelector('.overlay');
+  const pushtrayDiv = overlay.firstElementChild;
+  if (index < .8) {
+    pushtrayDiv.textContent = "WARNING: Simpon's Index dropped to " + index;
+    overlay.style.display = 'block';
+  }
+}
+
+function updateSimpsIndex(emoji) {
+  // update Simpson's Index in first child node of sim div
+  const simps = document.querySelector('#sim').children[0];
+  if (emoji) {
+    simpsInd = simpsonsIndex(emoji).toFixed(2);
+  }
+  simps.innerHTML = "the current Simpson's Index is: <strong>" + simpsInd + '</strong>';
+
+  // check if Simpon's Index is below 0.8
+  checkSimpsIndex(simpsonsIndex(emoji).toFixed(2));
 }
 
 function userForest(input) {
@@ -168,35 +114,89 @@ function randomForest() {
   updateSimpsIndex(allEmojis);
 }
 
-function selectRow(evt) {
-  // add 'selected'class, which highlights row, and
-  // is used when determining which rows to regenerate
-  if (evt.target.classList.contains('selected')) {
-    evt.target.classList.remove('selected');
+function generateForest(input) {
+  // if there is input, call function with input as parameter to handle user forest
+  // it is an array of rows
+  const inputForest = document.querySelector('#inputForest');
+  if (inputForest.value) {
+    userForest(input);
+    // clear the text area after the user generates the forest from their input
+    // so that if the user clicks generate again, the forest will be randomized
+    inputForest.value = '';
   }
+  // if no input, randomize the whole forest
   else {
-    evt.target.classList.add('selected');
+    randomForest();
   }
 }
 
-function updateSimpsIndex(emoji) {
-  // update Simpson's Index in first child node of sim div
-  const simps = document.querySelector('#sim').children[0];
-  if (emoji) {
-    simpsInd = simpsonsIndex(emoji).toFixed(2);
-  }
-  simps.innerHTML = "the current Simpson's Index is: <strong>" + simpsInd + '</strong>';
+function generateDOMelements() {
+  // get reference to sim container
+  const sim = document.querySelector('#sim');
 
-  // check if Simpon's Index is below 0.8
-  checkSimpsIndex(simpsonsIndex(emoji).toFixed(2));
+  // create div for Simpon's Index and append to sim div
+  const simpsP = document.createElement('p');
+  sim.appendChild(simpsP);
+
+  // create container for forest, initially empty, and append to sim div
+  const forestContainer = document.createElement('div');
+  for (let i = 0; i < numRows; i++) {
+    const row = document.createElement('div');
+    row.innerHTML = '';
+
+    // on click handler to save/pin rows
+    row.addEventListener('click', selectRow);
+    forestContainer.append(row);
+  }
+  sim.appendChild(forestContainer);
+
+  // create button and add event listener to regenerate non-selected rows
+  const btn = document.createElement('button');
+  btn.textContent = 'generate';
+  btn.addEventListener('click', generateForest);
+  sim.appendChild(btn);
+
+  // create a div element within the push tray div to display Simpson's Index
+  const pushtray = document.querySelector('#pushtray');
+  const pushtrayDiv = document.createElement('div');
+  pushtray.append(pushtrayDiv);
 }
 
-function checkSimpsIndex(index) {
-  // add Simpson's Index to proper div and display it
-  const overlay = document.querySelector('.overlay');
-  const pushtrayDiv = overlay.firstElementChild;
-  if (index < .98) {
-    pushtrayDiv.textContent = "WARNING: Simpon's Index dropped to " + index;
-    overlay.style.display = 'block';
+function generate(evt) {
+  // hide intro
+  const intro = document.querySelector('#intro');
+  intro.classList.add('hidden');
+  // show sim div
+  const sim = document.querySelector('#sim');
+  sim.classList.remove('hidden');
+
+  // determine number of rows if there is any user input
+  const inputForestVal = document.querySelector('#inputForest').value;
+  const inputArr = inputForestVal.split('\n');
+  if (inputForestVal) {
+    // set number of rows and emoji per row if there is any input,
+    // otherwise, the default is 8 for each
+    numRows = inputArr.length;
+    numEmojis = [...inputArr[0]].length;
   }
+
+  // generate Simpson's Index div, the forest container, and the generate button
+  generateDOMelements();
+
+  // generate forest, which depends on whether or not user typed input,
+  // using array of every line of the input
+  generateForest(inputArr);
+
+  // do not reload page nor send data via form when button is clicked
+  evt.preventDefault();
 }
+
+function main() {
+  // add event listener to the generate button,
+  // which will hide intro and show sim div
+  const btn = document.querySelector('button');
+  btn.addEventListener('click', generate);
+}
+
+// run main function once DOM content has loaded
+document.addEventListener('DOMContentLoaded', main);
