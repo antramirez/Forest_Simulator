@@ -92,23 +92,25 @@ function randomForest() {
       // start row with empty string
       rows[i].innerHTML = '';
       for (let j = 0; j < numEmojis; j++) {
-        // check if next character is empty string, and add random emoji
+        // add random emoji to current row
         const index = Math.floor(Math.random() * emojis.length);
-        if (emojis[index] !== '') {
-          rows[i].innerHTML += emojis[index];
-        }
-        else {
-          rows[i].innerHTML += '&emsp;';
-        }
-        // add current emoji to array
+        rows[i].innerHTML += emojis[index];
+        // add current emoji to array of all emojis
         allEmojis.push(emojis[index]);
       }
     }
     else {
-      // make array out of current row's emojis, meaning don't change them
+      // make array out of current row's emojis
       const cur = [...rows[i].innerHTML];
-      // use spread to add row's emojis to array of all emojis
-      allEmojis.push(...cur);
+      // loop through every emoji in the current row
+      for (let j = 0; j < cur.length; j++) {
+        // convert space to appropriate HTML entity
+        if (cur[j] === ' ') {
+          cur[j] = '&emsp;';
+        }
+        // add current emoji to array of all emojis
+        allEmojis.push(cur[j]);
+      }
     }
   }
 
@@ -165,6 +167,7 @@ function generateDOMelements() {
   // create container for forest, initially empty, and append to sim div
   const forestContainer = document.createElement('div');
   for (let i = 0; i < numRows; i++) {
+    // create new div for row
     const row = document.createElement('div');
     row.innerHTML = '';
 

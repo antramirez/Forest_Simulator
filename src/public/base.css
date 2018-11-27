@@ -22,6 +22,10 @@ h1 {
   display:none;
 }
 
+#sim div {
+  font-family: serif; 
+}
+
 #sim button {
   margin-top: 10px;
 }
